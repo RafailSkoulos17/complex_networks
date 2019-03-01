@@ -1,44 +1,7 @@
-import collections
-
 import pandas as pd
 import networkx as nx
 import numpy as np
 import pickle
-import matplotlib.pyplot as plt
-import matplotlib.ticker as plticker
-import copy
-
-def plot_degree_distribution(G):
-    degree_sequence = sorted([d for n, d in G.degree()], reverse=True)  # degree sequence
-    degreeCount = collections.Counter(degree_sequence)
-    deg, cnt = zip(*degreeCount.items())
-    total_cnt = sum(cnt)
-    freq = [i/total_cnt for i in cnt]
-    # degrees = list(deg.values())
-    # deg_freq = {}
-    # for deg in set(degrees):
-    #     deg_freq[str(deg)] = degrees.count(deg) / len(degrees)
-
-    x = map(int, list(deg))
-    y = map(float, list(freq))
-    x, y = zip(*sorted(zip(x, y)))
-
-    fig, ax = plt.subplots()
-    ax.plot(x, y, color='r', marker='o')
-    ax.set(xlabel='Degrees', ylabel='Frequency',
-           title='Degree distribution')
-
-    loc = plticker.MultipleLocator(base=10)  # this locator puts ticks at regular intervals
-    ax.xaxis.set_major_locator(loc)
-
-    # plt.xscale('log')
-    # plt.yscale('log')
-
-    ax.grid()
-    z = np.polyfit(x, y, 2)
-    p = np.poly1d(z)
-    plt.plot(x, p(x), "b--")
-    plt.show()
 
 
 def createStructure(file):
@@ -73,9 +36,6 @@ print("graphDensity: "+str(graphDensity))
 print("avgDegree: "+str(avgDegree))
 print("varDegree: "+str(varDegree))
 
-# question A2
-plot_degree_distribution(G)
-
 # question A3
 assortativity = nx.degree_assortativity_coefficient(G)
 print("assortativity: "+str(assortativity))
@@ -97,11 +57,3 @@ print("diameter: "+str(diameter))
 isSmallWorld = nx.omega(G)
 print("omega coefficient: "+str(isSmallWorld))
 
-# question A7
-adjacency_eigenvalues = nx.adjacency_spectrum(G)
-spectral_radius = max(adjacency_eigenvalues).real
-print("Spectral Radius: ", spectral_radius)
-
-# question A8
-algebraic_connectivity = nx.algebraic_connectivity(G)
-print("Algebraic Connectivity: ", algebraic_connectivity)
