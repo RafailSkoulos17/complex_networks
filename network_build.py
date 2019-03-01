@@ -20,6 +20,34 @@ def make_network(file):
     return net
 
 
+def calculateAssortativity(net, deg, L):
+    d2 = sum(map(lambda x: x ** 2, list(deg.values())))
+    d3 = sum(map(lambda x: x ** 3, list(deg.values())))
+    dLink = 0
+    for i in deg.keys():
+        for j in net.keys():
+            if j in net[i]:
+                dLink += (deg[i]-deg[j])**2
+    dLink = dLink/2
+    return 1-dLink/(d3-(d2**2)/(2*L))
+
+
+def calculateClusteringCoeff(net, deg):
+    c = {}
+    for key, value in net.items():
+        li = 0
+        for v in net[key]:
+            for v_check in net[key]:
+                if v in net[v_check]:
+                    li += 1
+        if deg[key] == 1:
+            c[key] = 0
+        else:
+            c[key] = li/(deg[key]*(deg[key]-1))
+    #print(c)
+    return sum(list(c.values()))/len(net)
+
+
 # net = make_network("manufacturing_emails_temporal_network.xlsx")
 # with open('network.json', 'w') as outfile:
 #     json.dump(net, outfile)
@@ -28,6 +56,8 @@ with open('network.json') as json_file:
 
 deg = {}
 for key, value in net.items():
+    if len(set(value)) != len(value):
+        print("malakia was played")
     deg[key] = len(value)
 
 numNodes = len(net)
@@ -40,3 +70,8 @@ print("numLinks: "+str(numLinks))
 print("graphDensity: "+str(graphDensity))
 print("avgDegree: "+str(avgDegree))
 print("varDegree: "+str(varDegree))
+
+clustCoeff = calculateClusteringCoeff(net, deg)
+assortativity = calculateAssortativity(net, deg, numLinks)
+print("clustCoeff: "+str(clustCoeff))
+print("assortativity: "+str(assortativity))
