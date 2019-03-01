@@ -1,6 +1,33 @@
 import pandas as pd
 import json
 import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.ticker as plticker
+
+
+def plot_degree_distribution(deg):
+    degrees = list(deg.values())
+    deg_freq = {}
+    for deg in set(degrees):
+        deg_freq[str(deg)] = degrees.count(deg) / len(degrees)
+
+    x = map(int, list(deg_freq.keys()))
+    y = map(float, list(deg_freq.values()))
+    x, y = zip(*sorted(zip(x, y)))
+
+    fig, ax = plt.subplots()
+    ax.plot(x, y, color='r', marker='o')
+    ax.set(xlabel='Degrees', ylabel='Frequency',
+           title='Degree distribution')
+
+    loc = plticker.MultipleLocator(base=10)  # this locator puts ticks at regular intervals
+    ax.xaxis.set_major_locator(loc)
+
+    # plt.xscale('log')
+    # plt.yscale('log')
+
+    ax.grid()
+    plt.show()
 
 
 def make_network(file):
@@ -71,7 +98,12 @@ print("graphDensity: "+str(graphDensity))
 print("avgDegree: "+str(avgDegree))
 print("varDegree: "+str(varDegree))
 
+
 clustCoeff = calculateClusteringCoeff(net, deg)
 assortativity = calculateAssortativity(net, deg, numLinks)
 print("clustCoeff: "+str(clustCoeff))
 print("assortativity: "+str(assortativity))
+
+
+plot_degree_distribution(deg)
+
