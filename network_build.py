@@ -1,3 +1,5 @@
+import copy
+
 import pandas as pd
 import json
 import numpy as np
@@ -106,4 +108,3 @@ print("assortativity: "+str(assortativity))
 
 
 plot_degree_distribution(deg)
-
