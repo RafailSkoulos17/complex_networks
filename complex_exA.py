@@ -45,3 +45,14 @@ clustCoeff = nx.average_clustering(G)
 print("clustCoeff: "+str(clustCoeff))
 
 # question A5
+avg_hopcount = nx.average_shortest_path_length(G)
+diameter = -1
+for value in dict(nx.all_pairs_shortest_path_length(G)).values():
+    if max(value.values())>diameter:
+        diameter = max(value.values())
+print("avg_hopcount: "+str(avg_hopcount))
+print("diameter: "+str(diameter))
+
+# question A6
+isSmallWorld = nx.omega(G)
+print("omega coefficient: "+str(isSmallWorld))
