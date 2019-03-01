@@ -1,9 +1,45 @@
+import math
+
 import pandas as pd
 import networkx as nx
 import numpy as np
 import pickle
 import matplotlib.pyplot as plt
 import matplotlib.ticker as plticker
+
+
+def plot_recognition_rate(f_values, R_values, metric):
+
+    f_values = ['{0:.2f}'.format(f) for f in f_values]
+    fig, ax = plt.subplots()
+    ax.plot(f_values, R_values, color='r', marker='o')
+    ax.set(xlabel='f', ylabel='Recognition Rate',
+           title='Recognition rate per f for ' + metric + ' metric')
+    plt.xticks(f_values, f_values)
+    ax.grid()
+    plt.show()
+
+
+def compute_Rr(f, R, L):
+    """
+     L is either the degree ranking vector or the clustering coefficient ranking vector
+    """
+    top_r = math.floor(f*len(R))
+    Rf = R[:top_r]
+    top_l = math.floor(f*len(L))
+    Lf = L[:top_l]
+
+    # keep only the id of the top f nodes
+    Rf = [x[0] for x in Rf]
+    Lf = [x[0] for x in Lf]
+
+    common_elements = []
+    for element in Rf:
+        if element in Lf:
+            common_elements += [element]
+
+    return len(common_elements)/len(Rf)
+
 
 
 def init_infection(G):
@@ -24,7 +60,8 @@ def plot_infected_nodes(I):
 
     x = range(57792)
     fig, ax = plt.subplots()
-    ax.errorbar(x, avg_infected_nodes, yerr=std_infected_nodes, ecolor='g', linestyle='None', marker='o')
+    ax.errorbar(x, avg_infected_nodes, yerr=std_infected_nodes, ecolor='g', linestyle='None', marker='o', linewidth=2,
+                markersize=12)
     ax.locator_params(axis='x', nbins=4)
 
     loc = plticker.MultipleLocator(base=10000)  # this locator puts ticks at regular intervals
@@ -119,11 +156,30 @@ with open('infection_sim_v2.pickle', 'rb') as handle:
     I = pickle.load(handle)
 
 #  Question 9
-plot_infected_nodes(I)
+plot_infected_nodes_sampled(I)
 
 #  Question 10
 R = rank_influence(I, G.number_of_nodes())
-print(R)
+# print(R)
+
+# Question 11
+
+degree = dict(G.degree)
+clustering_coefficient = dict(nx.clustering(G))
+
+degree_list = degree.items()
+cc_list = clustering_coefficient.items()
+
+cc_list = list(sorted(cc_list, key=lambda x: int(x[1]), reverse=True))
+degree_list = list(sorted(degree_list, key=lambda x: int(x[1]), reverse=True))
+
+f_values = np.arange(0.05, 0.55, 0.05)
+Rrd = [compute_Rr(f, R, degree_list) for f in f_values]
+Rrc = [compute_Rr(f, R, cc_list) for f in f_values]
+
+plot_recognition_rate(f_values, Rrd, "Degree")
+plot_recognition_rate(f_values, Rrc, "Clustering Coefficient")
+
 
 
 
