@@ -1,11 +1,12 @@
 import math
-
+import os
+from collections import defaultdict
+import matplotlib.pyplot as plt
+import matplotlib.ticker as plticker
 import pandas as pd
 import networkx as nx
 import numpy as np
 import pickle
-import matplotlib.pyplot as plt
-import matplotlib.ticker as plticker
 
 def plot_recognition_rate(f_values, R_values, metric):
 
@@ -16,7 +17,8 @@ def plot_recognition_rate(f_values, R_values, metric):
            title='Recognition rate per f for ' + metric + ' metric')
     plt.xticks(f_values, f_values)
     ax.grid()
-    plt.show()
+    # plt.show()
+    plt.savefig('figures/recognition_rate_per_f_for_' + metric + '.png')
 
 
 def compute_Rr(f, R, L):
@@ -69,7 +71,8 @@ def plot_infected_nodes(I):
     ax.set(xlabel='Timestep', ylabel='Infected Nodes',
            title='Mean and std number of affected nodes per timestep')
     ax.grid()
-    plt.show()
+    plt.savefig('figures/mean_and_std_of_affected_nodes_per_timestep.png')
+    # plt.show()
 
 
 def plot_infected_nodes_sampled(I):
@@ -93,7 +96,8 @@ def plot_infected_nodes_sampled(I):
     ax.set(xlabel='Timestep', ylabel='Infected Nodes',
            title='Mean and std number of affected nodes per timestep')
     ax.grid()
-    plt.show()
+    # plt.show()
+    plt.savefig('figures/sampled_mean_and_std_of_affected_nodes_per_timestep.png')
 
 
 def simulate_infection(file, G):
@@ -141,6 +145,7 @@ def rank_influence(I, N):
     return list(sorted(rList, key=lambda x: int(x[1])))
 
 
+
 def rank_by_avg_influence(I, N):
     rList = []
     for key, value in I.items():
@@ -152,6 +157,60 @@ def rank_by_avg_influence(I, N):
         else:
             rList.append([key, len(value) + 1])
     return list(sorted(rList, key=lambda x: int(x[1])))
+
+
+def create_graph_for_specific_timestamp(edgeList):
+    G = nx.Graph()
+    for edge in edgeList:
+        G.add_edge(edge[0], edge[1])
+    return G
+
+
+def calculate_temporal_closeness_centrality(timeD):
+    clossD = defaultdict(list)
+    for t in timeD:
+        Gt = create_graph_for_specific_timestamp(timeD[t])
+        closs = nx.closeness_centrality(Gt)  # returns dictionary {'node1':closs1, 'node2': closs2...}
+        for key, value in closs.items():
+            clossD[key].append(value)
+    for node in clossD:
+        clossD[node] = np.mean(clossD[node])
+    return clossD
+
+# def create_edgelist_per_time(file):
+#     timeD = {} # create edgelist
+#     df = pd.read_excel(file)
+#     for index, row in df.iterrows():
+#         vertex1 = int(row[0])
+#         vertex2 = int(row[1])
+#         t = int(row[2])
+#
+#         # Create edgelist per time - Adding one edge at a time
+#         if t in timeD:
+#             timeD[t].append((vertex1, vertex2))
+#         else:
+#             timeD[t] = []
+#             timeD[t].append((vertex1, vertex2))
+#     with open('edgelist_per_time.pickle', 'wb') as handle:
+#         pickle.dump(timeD, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+
+def calculate_temporal_degree(timeD):
+    tempDegreeD = defaultdict(list)
+    for t in range(1, max(timeD)+1):
+        Gt = create_graph_for_specific_timestamp(timeD[t])
+        # tempDegreeList = list(dict(Gt.degree(Gt.nodes())).values())
+        tempDegreeDict = dict(Gt.degree(Gt.nodes()))
+        for key, value in tempDegreeDict.items():
+            tempDegreeD[key].append(value)
+    for node in tempDegreeD:
+        tempDegreeD[node] = np.mean(tempDegreeD[node])
+    return tempDegreeD
+
+
+figures_dir = 'figures'
+if not os.path.exists(figures_dir):
+    os.makedirs(figures_dir)
 
 
 with open('graph.pickle', 'rb') as handle:
@@ -197,6 +256,29 @@ plot_recognition_rate(f_values, Rrc, "Clustering Coefficient")
 # Question 13
 R_star = rank_by_avg_influence(I, G.number_of_nodes())
 print(R_star)
+
+# Question 12
+
+readfile = "manufacturing_emails_temporal_network.xlsx"
+# create_edgelist_per_time(readfile)
+with open('edgelist_per_time.pickle', 'rb') as handle:
+    edge_list_per_time = pickle.load(handle)
+
+temporal_degree = calculate_temporal_degree(edge_list_per_time)
+temporal_closeness_centrality = calculate_temporal_closeness_centrality(edge_list_per_time)
+
+temporal_degree_list = temporal_degree.items()
+temporal_closeness_centrality_list = temporal_closeness_centrality.items()
+
+temporal_degree_list = list(sorted(temporal_degree_list, key=lambda x: int(x[1]), reverse=True))
+temporal_closeness_centrality_list = list(sorted(temporal_closeness_centrality_list, key=lambda x: int(x[1]), reverse=True))
+
+Rrtd = [compute_Rr(f, R, temporal_degree_list) for f in f_values]
+Rrtc = [compute_Rr(f, R, temporal_closeness_centrality_list) for f in f_values]
+
+plot_recognition_rate(f_values, Rrtc, "temporal closeness centrality")
+plot_recognition_rate(f_values, Rrtd, "temporal degree")
+
 
 
 
