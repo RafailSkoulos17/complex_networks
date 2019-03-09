@@ -150,3 +150,4 @@ G = init_infection(G)
 # I = simulate_infection(g3_df, G)
 # with open('infection_sim_G3.pickle', 'wb') as handle:
 #     pickle.dump(I, handle, protocol=pickle.HIGHEST_PROTOCOL)
+

@@ -9,17 +9,19 @@ import numpy as np
 import pickle
 
 
-def plot_recognition_rate(f_values, R_values, metric):
+
+def plot_recognition_rate(f_values, R_values, metric, ranking):
 
     f_values = ['{0:.2f}'.format(f) for f in f_values]
     fig, ax = plt.subplots()
     ax.plot(f_values, R_values, color='r', marker='o')
     ax.set(xlabel='f', ylabel='Recognition Rate',
-           title='Recognition rate per f for ' + metric + ' metric')
+           title='Influence prediction of ' + metric + ' for ' + ranking)
     plt.xticks(f_values, f_values)
     ax.grid()
     # plt.show()
-    plt.savefig('figures/recognition_rate_per_f_for_' + metric + '.png')
+    plt.savefig('figures/influence_prediction_' + '_'.join(metric.split()) + '_for_' + ranking + '.png')
+
 
 
 def compute_Rr(f, R, L):
@@ -227,10 +229,11 @@ with open('infection_sim_v2.pickle', 'rb') as handle:
 
 #  Question 9
 plot_infected_nodes_sampled(I)
+plot_infected_nodes(I)
 
 #  Question 10
 R = rank_influence(I, G.number_of_nodes())
-print(R)
+# print(R)
 
 # Question 11
 
@@ -247,14 +250,9 @@ f_values = np.arange(0.05, 0.55, 0.05)
 Rrd = [compute_Rr(f, R, degree_list) for f in f_values]
 Rrc = [compute_Rr(f, R, cc_list) for f in f_values]
 
-plot_recognition_rate(f_values, Rrd, "Degree")
-plot_recognition_rate(f_values, Rrc, "Clustering Coefficient")
+plot_recognition_rate(f_values, Rrd, "Degree", "R")
+plot_recognition_rate(f_values, Rrc, "Clustering Coefficient", "R")
 
-# Question 12
-
-# Question 13
-R_star = rank_by_avg_influence(I, G.number_of_nodes())
-print(R_star)
 
 # Question 12
 
@@ -275,9 +273,18 @@ temporal_closeness_centrality_list = list(sorted(temporal_closeness_centrality_l
 Rrtd = [compute_Rr(f, R, temporal_degree_list) for f in f_values]
 Rrtc = [compute_Rr(f, R, temporal_closeness_centrality_list) for f in f_values]
 
-plot_recognition_rate(f_values, Rrtc, "temporal closeness centrality")
-plot_recognition_rate(f_values, Rrtd, "temporal degree")
+plot_recognition_rate(f_values, Rrtc, "temporal closeness centrality", "R")
+plot_recognition_rate(f_values, Rrtd, "temporal degree", "R")
+
+# Question 13
+R_star = rank_by_avg_influence(I, G.number_of_nodes())
+# print(R_star)
+
+R_star_rd = [compute_Rr(f, R_star, degree_list) for f in f_values]
+Rstar_rc = [compute_Rr(f, R_star, cc_list) for f in f_values]
+Rstar_rr = [compute_Rr(f, R_star, R) for f in f_values]
 
 
-
-
+plot_recognition_rate(f_values, R_star_rd, "Degree", "R'")
+plot_recognition_rate(f_values, Rstar_rc, "Clustering_Coefficient", "R'")
+plot_recognition_rate(f_values, Rstar_rr, "Influence_Ranking", "R'")

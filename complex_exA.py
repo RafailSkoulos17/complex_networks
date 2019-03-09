@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as plticker
 import copy
 
+
 def plot_degree_distribution(G):
     degree_sequence = sorted([d for n, d in G.degree()], reverse=True)  # degree sequence
     degreeCount = collections.Counter(degree_sequence)
@@ -38,7 +39,7 @@ def plot_degree_distribution(G):
     z = np.polyfit(x, y, 2)
     p = np.poly1d(z)
     plt.plot(x, p(x), "b--")
-    plt.show()
+    plt.savefig('figures/degree_distribution.png')
 
 
 def createStructure(file):
@@ -94,8 +95,8 @@ print("avg_hopcount: "+str(avg_hopcount))
 print("diameter: "+str(diameter))
 
 # question A6
-isSmallWorld = nx.omega(G)
-print("omega coefficient: "+str(isSmallWorld))
+# isSmallWorld = nx.omega(G)
+# print("omega coefficient: "+str(isSmallWorld))
 
 # question A7
 adjacency_eigenvalues = nx.adjacency_spectrum(G)
