@@ -85,7 +85,7 @@ def simulate_infection(df, G):
     return I
 
 
-def plot_infected_nodes(I):
+def plot_infected_nodes(I, graph):
     infected = []
     for key, value in I.items():
         infected.append(value)
@@ -105,13 +105,13 @@ def plot_infected_nodes(I):
     ax.xaxis.set_major_locator(loc)
 
     ax.set(xlabel='Timestep', ylabel='Infected Nodes',
-           title='Mean and std number of affected nodes per timestep')
+           title='Mean and std number of affected nodes per timestep for '+ graph)
     ax.grid()
-    plt.savefig('figures/mean_and_std_of_affected_nodes_per_timestep.png')
+    plt.savefig('figures/' + graph + '_mean_and_std_of_affected_nodes_per_timestep.png')
     # plt.show()
 
 
-def plot_infected_nodes_sampled(I):
+def plot_infected_nodes_sampled(I, graph):
     infected = []
     for key, value in I.items():
         infected.append(value[0:len(value):1000])
@@ -130,10 +130,10 @@ def plot_infected_nodes_sampled(I):
     ax.xaxis.set_major_locator(loc)
 
     ax.set(xlabel='Timestep', ylabel='Infected Nodes',
-           title='Mean and std number of affected nodes per timestep')
+           title='Mean and std number of affected nodes per timestep for ' + graph)
     ax.grid()
     # plt.show()
-    plt.savefig('figures/sampled_mean_and_std_of_affected_nodes_per_timestep.png')
+    plt.savefig('figures/' + graph + '_sampled_mean_and_std_of_affected_nodes_per_timestep.png')
 
 
 with open('graph.pickle', 'rb') as handle:
@@ -141,6 +141,22 @@ with open('graph.pickle', 'rb') as handle:
 G = init_infection(G)
 # # question 14, 15
 #
+
+with open('infection_sim_G2.pickle', 'rb') as handle:
+    I2 = pickle.load(handle)
+
+plot_infected_nodes(I2, 'G2')
+plot_infected_nodes_sampled(I2, 'G2')
+
+with open('infection_sim_G3.pickle', 'rb') as handle:
+    I3 = pickle.load(handle)
+
+plot_infected_nodes(I3, 'G3')
+plot_infected_nodes_sampled(I3, 'G3')
+
+
+
+
 # g2_df = generate_g2("manufacturing_emails_temporal_network.xlsx")
 # I = simulate_infection(g2_df, G)
 # with open('infection_sim_G2.pickle', 'wb') as handle:
