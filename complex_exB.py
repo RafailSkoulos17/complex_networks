@@ -8,6 +8,7 @@ import networkx as nx
 import numpy as np
 import pickle
 
+
 def plot_recognition_rate(f_values, R_values, metric):
 
     f_values = ['{0:.2f}'.format(f) for f in f_values]
@@ -40,7 +41,6 @@ def compute_Rr(f, R, L):
             common_elements += [element]
 
     return len(common_elements)/len(Rf)
-
 
 
 def init_infection(G):
@@ -143,7 +143,6 @@ def rank_influence(I, N):
         else:
             rList.append([key, len(value)+1])
     return list(sorted(rList, key=lambda x: int(x[1])))
-
 
 
 def rank_by_avg_influence(I, N):
