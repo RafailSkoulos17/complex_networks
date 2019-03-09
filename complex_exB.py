@@ -7,7 +7,6 @@ import pickle
 import matplotlib.pyplot as plt
 import matplotlib.ticker as plticker
 
-
 def plot_recognition_rate(f_values, R_values, metric):
 
     f_values = ['{0:.2f}'.format(f) for f in f_values]
@@ -142,6 +141,19 @@ def rank_influence(I, N):
     return list(sorted(rList, key=lambda x: int(x[1])))
 
 
+def rank_by_avg_influence(I, N):
+    rList = []
+    for key, value in I.items():
+        temp1 = [i for i, n in enumerate(value) if n >= 0.8 * N]
+        if temp1!=[]:
+            temp = value[:temp1[0]+1]
+            diff_lst = [(i+1)*n for i, n in enumerate([j - i for i, j in zip(temp[:-1], temp[1:])])]
+            rList.append([key, sum(diff_lst)/value[temp1[0]]])
+        else:
+            rList.append([key, len(value) + 1])
+    return list(sorted(rList, key=lambda x: int(x[1])))
+
+
 with open('graph.pickle', 'rb') as handle:
     G = pickle.load(handle)
 # G = init_infection(G)
@@ -160,7 +172,7 @@ plot_infected_nodes_sampled(I)
 
 #  Question 10
 R = rank_influence(I, G.number_of_nodes())
-# print(R)
+print(R)
 
 # Question 11
 
@@ -180,6 +192,11 @@ Rrc = [compute_Rr(f, R, cc_list) for f in f_values]
 plot_recognition_rate(f_values, Rrd, "Degree")
 plot_recognition_rate(f_values, Rrc, "Clustering Coefficient")
 
+# Question 12
+
+# Question 13
+R_star = rank_by_avg_influence(I, G.number_of_nodes())
+print(R_star)
 
 
 
